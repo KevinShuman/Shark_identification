@@ -26,7 +26,8 @@ layout_left = [
                     [sg.InputText(key="-Input_Dir-"), sg.FolderBrowse(initial_folder=MAIN_PATH)],
                     [sg.Text(text="Directory to place files")],
                     [sg.InputText(key="-Output_Dir-"), sg.FolderBrowse(initial_folder=MAIN_PATH)],
-                    [sg.Button("Start", key="-Start-"), sg.Button("Next", key="-Next-"), sg.Button("Back", key="-Back-")],
+                    [sg.Button("Start", key="-Start-"), sg.Button("Next", key="-Next-"), sg.Button("Reject", key="-Reject-")],
+                    [sg.Button("Back", key="-Back-")],
                     [sg.Button("Save", key="-Save-")]
 
 ]
@@ -67,6 +68,10 @@ while True:
 
         window['-Image-'].update(filename=full_path)
 
+    # I want to populate a stack with all the image paths I want to keep
+    # and at the same time I want to move onto the next photo in the 
+    # directory. I want to do this by either pressing the Next button or
+    # by pressing the d key
     elif event == "-Next-" and initialized == 1:
         if for_back == 1:
             try:
@@ -84,10 +89,38 @@ while True:
         full_path = os.path.join(input_path, top_image)
         keep_list.append(full_path)
         reshape_image(full_path,500,500,"black")
+        print(top_image)
         window['-Image-'].update(filename=full_path)
     elif event == "d" and initialized == 1:
         window['-Next-'].click()
 
+    # If I come across a photo that I don't want to keep, I want to
+    # just move onto the next photo without adding it to the stack.
+    # I do this by pressing the w key
+    elif event == "-Reject-" and initialized == 1:
+        if for_back == 1:
+            try:
+                top_image = exchange_and_get(image_files_out,image_files_in)
+                top_image = exchange_and_get(image_files_out,image_files_in)
+            except:
+                print("No images that way!")
+        else:
+            try:
+                top_image = exchange_and_get(image_files_out,image_files_in)
+            except:
+                print("No images that way!")
+
+        for_back = 0
+        full_path = os.path.join(input_path, top_image)
+        reshape_image(full_path,500,500,"black")
+        print(top_image)
+        window['-Image-'].update(filename=full_path)
+    elif event == "w" and initialized == 1:
+        window['-Reject-'].click()
+
+    # If I make a mistake, I want to be able to go back to the previous
+    # image and also remove it from the stack. I want to do this by
+    # pressing the a key
     elif event == "-Back-" and initialized == 1:
         if for_back == 0:
             try:
@@ -112,8 +145,12 @@ while True:
     elif event == "a" and initialized == 1:
         window['-Back-'].click()
 
+    # Once I have made it through all the photos in my directory, I want
+    # to save the stack of all the image paths I plan to keep. I do that 
+    # by pressing the Save button
     if event == "-Save-" and initialized == 1:
-        print(keep_list)
+        with open(os.path.join(output_path,"keep_images.txt"), 'w') as fp:
+            fp.write('\n'.join(keep_list))
 
 
 
