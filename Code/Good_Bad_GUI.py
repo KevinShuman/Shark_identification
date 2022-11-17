@@ -66,11 +66,11 @@ while True:
     # directory. I want to do this by either pressing the Next button or
     # by pressing the d key
     elif event == "-Next-" and initialized == 1:
-        print(top_image)
+        print(next_image)
         for_back = 0
-        keep_list.append(full_path)
 
         try:
+            keep_list.append(full_path)
             next_image = get_next(image_files_in)
             full_path = os.path.join(input_path, next_image)
             reshape_image(full_path,500,500,"black")
@@ -78,18 +78,6 @@ while True:
             exchange(image_files_out,image_files_in)
         except:
             print("No images that way!")
-
-        '''if for_back == 1:
-            try:
-                exchange(image_files_out,image_files_in)
-                exchange(image_files_out,image_files_in)
-            except:
-                print("No images that way!")
-        else:
-            try:
-                exchange(image_files_out,image_files_in)
-            except:
-                print("No images that way!")'''
     elif event == "d" and initialized == 1:
         window['-Next-'].click()
 
@@ -97,7 +85,7 @@ while True:
     # just move onto the next photo without adding it to the stack.
     # I do this by pressing the w key
     elif event == "-Reject-" and initialized == 1:
-        print(top_image)
+        print(next_image)
         for_back = 0
 
         try:
@@ -108,25 +96,6 @@ while True:
             exchange(image_files_out,image_files_in)
         except:
             print("No images that way!")
-
-        '''if for_back == 1:
-            try:
-                top_image = exchange_and_get(image_files_out,image_files_in)
-                top_image = exchange_and_get(image_files_out,image_files_in)
-            except:
-                print("No images that way!")
-        else:
-            try:
-                top_image = exchange_and_get(image_files_out,image_files_in)
-            except:
-                print("No images that way!")
-
-        print(top_image, "skipped")
-
-        for_back = 0
-        full_path = os.path.join(input_path, top_image)
-        reshape_image(full_path,500,500,"black")
-        window['-Image-'].update(filename=full_path)'''
     elif event == "w" and initialized == 1:
         window['-Reject-'].click()
 
@@ -134,7 +103,7 @@ while True:
     # image and also remove it from the stack. I want to do this by
     # pressing the a key
     elif event == "-Back-" and initialized == 1:
-        print(top_image)
+        print(next_image)
         for_back = 0
 
         try:
@@ -197,10 +166,6 @@ while True:
         exchange(image_files_out,image_files_in)
     elif event == "a" and initialized == 0:
         print("No images that way!")
-
-
-    print("This is keep ", keep_list)
-    print("This is out", image_files_out)
 
 
 window.close()
