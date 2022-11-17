@@ -1,5 +1,3 @@
-
-
 import os
 from pathlib import Path
 from PIL import Image, ImageOps
@@ -8,11 +6,23 @@ import PySimpleGUIQt as sg
 MAIN_PATH = os.getcwd()
 IMAGE_PATH = os.path.join(MAIN_PATH,"jesus2.png")
 
-def exchange_and_get(list_on, list_off):
+def exchange(list_on, list_off):
     element = list_off.pop()
     list_on.append(element)
 
+def get_top(list1):
+    element = list1.pop()
+    list1.append(element)
+
     return element
+
+def get_next(list1):
+    element1 = list1.pop()
+    element2 = list1.pop()
+    list1.append(element2)
+    list1.append(element1)
+
+    return element2
 
 def reshape_image(path, x_size, y_size, fill_color):
         im = Image.open(path)
@@ -51,46 +61,35 @@ while True:
     if event == sg.WIN_CLOSED: # closes window if user closes window of clicks "Next"
         break
     
-
-    if event == "-Start-":
-        initialized = 1
-        for_back = 0
-        image_files_in = []
-        image_files_out = []
-        keep_list = []
-
-        input_path = values["-Input_Dir-"]
-        output_path = values["-Output_Dir-"]
-    
-        image_files_in = os.listdir(input_path)
-        top_image = exchange_and_get(image_files_out, image_files_in)
-        full_path = os.path.join(input_path, top_image)
-
-        window['-Image-'].update(filename=full_path)
-
     # I want to populate a stack with all the image paths I want to keep
     # and at the same time I want to move onto the next photo in the 
     # directory. I want to do this by either pressing the Next button or
     # by pressing the d key
     elif event == "-Next-" and initialized == 1:
-        if for_back == 1:
+        print(top_image)
+        for_back = 0
+        keep_list.append(full_path)
+
+        try:
+            next_image = get_next(image_files_in)
+            full_path = os.path.join(input_path, next_image)
+            reshape_image(full_path,500,500,"black")
+            window['-Image-'].update(filename=full_path)
+            exchange(image_files_out,image_files_in)
+        except:
+            print("No images that way!")
+
+        '''if for_back == 1:
             try:
-                top_image = exchange_and_get(image_files_out,image_files_in)
-                top_image = exchange_and_get(image_files_out,image_files_in)
+                exchange(image_files_out,image_files_in)
+                exchange(image_files_out,image_files_in)
             except:
                 print("No images that way!")
         else:
             try:
-                top_image = exchange_and_get(image_files_out,image_files_in)
+                exchange(image_files_out,image_files_in)
             except:
-                print("No images that way!")
-
-        for_back = 0
-        full_path = os.path.join(input_path, top_image)
-        keep_list.append(full_path)
-        reshape_image(full_path,500,500,"black")
-        print(top_image)
-        window['-Image-'].update(filename=full_path)
+                print("No images that way!")'''
     elif event == "d" and initialized == 1:
         window['-Next-'].click()
 
@@ -98,7 +97,19 @@ while True:
     # just move onto the next photo without adding it to the stack.
     # I do this by pressing the w key
     elif event == "-Reject-" and initialized == 1:
-        if for_back == 1:
+        print(top_image)
+        for_back = 0
+
+        try:
+            next_image = get_next(image_files_in)
+            full_path = os.path.join(input_path, next_image)
+            reshape_image(full_path,500,500,"black")
+            window['-Image-'].update(filename=full_path)
+            exchange(image_files_out,image_files_in)
+        except:
+            print("No images that way!")
+
+        '''if for_back == 1:
             try:
                 top_image = exchange_and_get(image_files_out,image_files_in)
                 top_image = exchange_and_get(image_files_out,image_files_in)
@@ -110,11 +121,12 @@ while True:
             except:
                 print("No images that way!")
 
+        print(top_image, "skipped")
+
         for_back = 0
         full_path = os.path.join(input_path, top_image)
         reshape_image(full_path,500,500,"black")
-        print(top_image)
-        window['-Image-'].update(filename=full_path)
+        window['-Image-'].update(filename=full_path)'''
     elif event == "w" and initialized == 1:
         window['-Reject-'].click()
 
@@ -122,26 +134,21 @@ while True:
     # image and also remove it from the stack. I want to do this by
     # pressing the a key
     elif event == "-Back-" and initialized == 1:
-        if for_back == 0:
-            try:
-                top_image = exchange_and_get(image_files_in,image_files_out)
-                top_image = exchange_and_get(image_files_in,image_files_out)
-            except:
-                print("No images that way!")
-        else:
-            try:
-                top_image = exchange_and_get(image_files_in,image_files_out)
-            except:
-                print("No images that way!")
+        print(top_image)
+        for_back = 0
 
-        for_back = 1
-        full_path = os.path.join(input_path, top_image)
         try:
-            keep_list.pop()
+            top_image = get_top(image_files_out)
+            full_path = os.path.join(input_path, top_image)
+
+            if full_path in keep_list:
+                keep_list.pop()
+
+            reshape_image(full_path,500,500,"black")
+            window['-Image-'].update(filename=full_path)
+            exchange(image_files_in,image_files_out)
         except:
-            print("Keep list is empty!")
-        reshape_image(full_path,500,500,"black")
-        window['-Image-'].update(filename=full_path)
+            print("No images that way!")
     elif event == "a" and initialized == 1:
         window['-Back-'].click()
 
@@ -152,7 +159,48 @@ while True:
         with open(os.path.join(output_path,"keep_images.txt"), 'w') as fp:
             fp.write('\n'.join(keep_list))
 
+    # We start with initialized everything, bringing up the first image
+    # A being able to decide on the first image. Once the decision
+    # has been made, it brings up the next image
+    elif event == "-Start-" and initialized == 0:
+        for_back = 0
+        image_files_in = []
+        image_files_out = []
+        keep_list = []
 
+        input_path = values["-Input_Dir-"]
+        output_path = values["-Output_Dir-"]
+    
+        image_files_in = os.listdir(input_path)
+        top_image = get_top(image_files_in)
+        full_path = os.path.join(input_path, top_image)
+        print(top_image)
+        window['-Image-'].update(filename=full_path)
+    elif event == "d" and initialized == 0:
+        keep_list.append(full_path)
+        initialized = 1
+
+        next_image = get_next(image_files_in)
+        full_path = os.path.join(input_path, next_image)
+        
+        reshape_image(full_path,500,500,"black")
+        window['-Image-'].update(filename=full_path)
+        exchange(image_files_out,image_files_in)
+    elif event == "w" and initialized == 0:
+        initialized = 1
+
+        next_image = get_next(image_files_in)
+        full_path = os.path.join(input_path, next_image)
+        
+        reshape_image(full_path,500,500,"black")
+        window['-Image-'].update(filename=full_path)
+        exchange(image_files_out,image_files_in)
+    elif event == "a" and initialized == 0:
+        print("No images that way!")
+
+
+    print("This is keep ", keep_list)
+    print("This is out", image_files_out)
 
 
 window.close()
