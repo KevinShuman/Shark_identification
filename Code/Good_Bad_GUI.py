@@ -3,6 +3,7 @@ from pathlib import Path
 from PIL import Image, ImageOps
 import PySimpleGUIQt as sg
 
+
 MAIN_PATH = os.getcwd()
 IMAGE_PATH = os.path.join(MAIN_PATH,"jesus2.png")
 
